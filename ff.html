@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ถอดรหัสล่าพี่รหัส</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Cinzel', serif;
+      background: linear-gradient(145deg, #0c0f1a, #1b1f2b);
+      color: #f1f5f9;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin: 2rem 0 0.5rem;
+      color: #e0e7ff;
+      text-shadow: 0 0 5px #60a5fa;
+      text-align: center;
+      width: 100%;
+    }
+
+    .stage {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(6px);
+      border: 2px solid #60a5fa;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin: 1rem auto;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 20px #60a5fa44;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    #seniorCluesPage {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(6px);
+      border: 2px solid #60a5fa;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin: 1rem auto;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 20px #60a5fa44;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      animation: flicker 3s infinite;
+    }
+
+    @keyframes flicker {
+      0%, 100% { box-shadow: 0 0 20px #60a5fa44; }
+      50% { box-shadow: 0 0 10px #ff555544; }
+    }
+
+    .senior-clue-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+      width: 100%;
+    }
+
+    .senior-clue-box {
+      background: #1e293b;
+      border: 1px solid #60a5fa;
+      border-radius: 5px;
+      padding: 1rem;
+      color: #facc15;
+      font-size: 1rem;
+      text-align: center;
+      animation: fadeIn 0.5s ease-in;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    p, code {
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      overflow-x: auto;
+      white-space: normal;
+      font-size: 0.95rem;
+      padding: 0.3rem;
+    }
+
+    code {
+      background: #1e293b;
+      border-radius: 4px;
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 0.7rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+      background-color: #1e293b;
+      color: #f1f5f9;
+      box-shadow: inset 0 0 5px #3b82f6;
+    }
+
+    input::placeholder {
+      color: #94a3b8;
+    }
+
+    button {
+      background-color: #3b82f6;
+      color: #fff;
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      margin-left: 0.5rem;
+      transition: 0.3s;
+      font-weight: bold;
+      box-shadow: 0 0 10px #3b82f6aa;
+    }
+
+    button:hover {
+      background-color: #2563eb;
+      transform: scale(1.05);
+    }
+
+    button:disabled {
+      background-color: #6b7280;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .result {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      color: #38bdf8;
+      font-weight: bold;
+    }
+
+    .clue-log {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+      color: #facc15;
+      max-width: 100%;
+      overflow-wrap: break-word;
+    }
+
+    .stage-hidden, .page-hidden {
+      display: none;
+    }
+
+    #hamburger {
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      font-size: 2rem;
+      color: #60a5fa;
+      cursor: pointer;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+    }
+
+    .menu-hint {
+      position: absolute;
+      left: 3rem;
+      background: #1e40af;
+      color: #f1f5f9;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    #hamburger:hover .menu-hint {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #sideMenu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 230px;
+      height: 100%;
+      background-color: #0f172a;
+      border-right: 2px solid #3b82f6;
+      padding-top: 4rem;
+      transition: transform 0.4s ease;
+      z-index: 999;
+      transform: translateX(-250px);
+    }
+
+    #sideMenu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #sideMenu li {
+      padding: 1.2rem;
+      border-bottom: 1px solid #334155;
+      color: #f1f5f9;
+      cursor: pointer;
+      transition: 0.2s;
+      text-align: center;
+    }
+
+    #sideMenu li:hover {
+      background-color: #1e293b;
+      color: #93c5fd;
+      letter-spacing: 1px;
+    }
+
+    #sideMenu.show {
+      transform: translateX(0);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e40af;
+      color: #f1f5f9;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 15px #60a5fa;
+      opacity: 0;
+      z-index: 1000;
+      font-size: 1rem;
+      transition: all 0.5s ease;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.hide {
+      transform: translateX(-50%) translateY(100px);
+      opacity: 0;
+    }
+
+    #puzzlePieces {
+      margin: 0.5rem 0;
+      color: #facc15;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    #puzzleContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.5rem 0;
+      justify-content: center;
+    }
+
+    .puzzle-piece {
+      background: #1e293b;
+      padding: 0.5rem;
+      border-radius: 5px;
+      cursor: move;
+      color: #f1f5f9;
+      border: 1px solid #60a5fa;
+      font-size: 1rem;
+    }
+
+    #finalResult {
+      margin-top: 0.5rem;
+      color: #38bdf8;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #puzzleSection {
+      margin: 1rem auto;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    #scoreDisplay {
+      margin: 0.5rem 0;
+      color: #93c5fd;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+        margin-top: 3rem;
+      }
+
+      .stage, #seniorCluesPage {
+        width: 95%;
+        padding: 1rem;
+      }
+
+      .senior-clue-grid {
+        grid-template-columns: 1fr;
+      }
+
+      p, code {
+        font-size: 0.85rem;
+        padding: 0.2rem;
+      }
+
+      input[type="text"] {
+        width: 85%;
+      }
+
+      button {
+        padding: 0.6rem 1rem;
+        margin-left: 0.3rem;
+      }
+
+      #hamburger {
+        font-size: 1.8rem;
+      }
+
+      .menu-hint {
+        font-size: 0.8rem;
+        padding: 0.3rem 0.8rem;
+        left: 2.5rem;
+      }
+
+      .toast {
+        width: 90%;
+        font-size: 0.9rem;
+      }
+
+      .puzzle-piece, .senior-clue-box {
+        padding: 0.3rem;
+        font-size: 0.8rem;
+      }
+
+      #scoreDisplay, #puzzlePieces {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <audio id="successSound" src="https://www.soundjay.com/buttons/beep-01a.mp3"></audio>
+  <audio id="errorSound" src="https://www.soundjay.com/buttons/beep-02.mp3"></audio>
+  <audio id="spookySound" src="https://www.soundjay.com/ambient/sounds/creepy-ambience-01.mp3"></audio>
+
+  <div id="hamburger" onclick="toggleMenu()">➔ <span class="menu-hint">เลือกด่านและความยากที่นี่</span></div>
+
+  <div id="sideMenu">
+    <ul>
+      <li onclick="setDifficulty('easy')">โหมด: ง่าย</li>
+      <li onclick="setDifficulty('hard')">โหมด: ยาก</li>
+      <li onclick="goToStage(1)">ด่านที่ 1 </li>
+      <li onclick="goToStage(2)">ด่านที่ 2 </li>
+      <li onclick="goToStage(3)">ด่านที่ 3 </li>
+      <li onclick="goToStage(4)">ด่านที่ 4 </li>
+      <li onclick="goToStage(5)">ด่านที่ 5 </li>
+      <li onclick="goToStage(6)">ด่านที่ 6 </li>
+      <li onclick="showSeniorCluesPage()">คำใบ้จากพี่รหัส</li>
+      <li onclick="resetGame()">เริ่มใหม่ทั้งหมด</li>
+    </ul>
+  </div>
+
+  <h1>🔍สืบจนตาแฉะ</h1>
+  <div id="scoreDisplay">คะแนน: <span id="scoreValue">0</span> (พยายาม: <span id="attemptsValue">0</span>)</div>
+  <div id="puzzlePieces">ชิ้นส่วนจิ๊กซอว์: <span id="piecesList">ยังไม่มีชิ้นส่วน</span></div>
+
+  <div id="stage1" class="stage">
+    <h2>ด่านที่ 1</h2>
+    <p>เมื่อเราตัดสิ่งที่แย่ในชีวิตออกไปมักจะเจอสิ่งที่ใช่สำหรับเรา: <code>0X1Q1A0Z1B1X0C1D1E0F1G0H0I0J1K0L0M0N0O1P1Q0R0S1T0U0V1W0X0Y0Z1010G1H1I0J0K0L0M001X0Z0W0A0D1G1Q0Z1T0O1U1P0Z</code></p>
+    <input type="text" id="answer1" placeholder="ใส่คำตอบของคุณ..."/>
+    <button onclick="checkAnswer(1)">ตรวจสอบ</button>
+    <button id="hint1" onclick="showHint(1)">ขอคำใบ้(ขึ้นอยู่กับโหมด ง่าย/ยาก )</button>
+    <div id="result1" class="result"></div>
+    <button id="nextStageButton1" onclick="goToNextStage(1)" style="display: none;">เล่นด่านถัดไป</button>
+    <div id="clueLog1" class="clue-log"></div>
+  </div>
+
+  <div id="stage2" class="stage stage-hidden">
+    <h2>ด่านที่ 2</h2>
+    <p>1 สัปดาห์มี 7 วันรู้สึกว่าชอบ 4 วันส่วน 3 วันที่เหลือจะแย่มากเลย: <code>011010101001110100011000011011010111100010011010100011100100101011011010011010101010011</code></p>
+    <input type="text" id="answer2" placeholder="ใส่คำตอบของคุณ..."/>
+    <button onclick="checkAnswer(2)">ตรวจสอบ</button>
+    <button id="hint2" onclick="showHint(2)">ขอคำใบ้(ขึ้นอยู่กับโหมด ง่าย/ยาก )</button>
+    <div id="result2" class="result"></div>
+    <button id="nextStageButton2" onclick="goToNextStage(2)" style="display: none;">เล่นด่านถัดไป</button>
+    <div id="clueLog2" class="clue-log"></div>
+  </div>
+
+  <div id="stage3" class="stage stage-hidden">
+    <h2>ด่านที่ 3</h2>
+    <p>(a × x + b) mod 26 , a = 5, b = 8 , A = 0, B = 1, ..., Z = 25 <code>ZGQXIWVMIW</code></p>
+    <input type="text" id="answer3" placeholder="ใส่คำตอบของคุณ..."/>
+    <button onclick="checkAnswer(3)">ตรวจสอบ</button>
+    <button id="hint3" onclick="showHint(3)">ขอคำใบ้(ขึ้นอยู่กับโหมด ง่าย/ยาก )</button>
+    <div id="result3" class="result"></div>
+    <button id="nextStageButton3" onclick="goToNextStage(3)" style="display: none;">เล่นด่านถัดไป</button>
+    <div id="clueLog3" class="clue-log"></div>
+  </div>
+
+  <div id="stage4" class="stage stage-hidden">
+    <h2>ด่านที่ 4</h2>
+    <p>บางครั้งการที่เราเป็นคนพอดีก็อาจจะทำให้ได้สิ่งดีๆนะ จากคนยุค 90s: <code>555 444 666 66 55 444 66 4 1 0 # 999</code></p>
+    <input type="text" id="answer4" placeholder="ใส่คำตอบของคุณ..."/>
+    <button onclick="checkAnswer(4)">ตรวจสอบ</button>
+    <button id="hint4" onclick="showHint(4)">ขอคำใบ้(ขึ้นอยู่กับโหมด ง่าย/ยาก )</button>
+    <div id="result4" class="result"></div>
+    <button id="nextStageButton4" onclick="goToNextStage(4)" style="display: none;">เล่นด่านถัดไป</button>
+    <div id="clueLog4" class="clue-log"></div>
+  </div>
+
+  <div id="stage5" class="stage stage-hidden">
+    <h2>ด่านที่ 5</h2>
+    <p>โอ้แอปเปิ้ล: <code>[1] m = 10, a = 10.3 [2] m = 3, a = 32.33 [3] m = 5, a = 21.8 [4] m = 4, a = 25 [5] m = 2, a = 49.5 [6] m = 2, a = 53 [7] m = 1, a = 101 [8] m = 2, a = 50.5 [9] m = 2, a = 58.5</code></p>
+    <input type="text" id="answer5" placeholder="ใส่คำตอบของคุณ..."/>
+    <button onclick="checkAnswer(5)">ตรวจสอบ</button>
+    <button id="hint5" onclick="showHint(5)">ขอคำใบ้(ขึ้นอยู่กับโหมด ง่าย/ยาก )</button>
+    <div id="result5" class="result"></div>
+    <button id="nextStageButton5" onclick="goToNextStage(5)" style="display: none;">เล่นด่านถัดไป</button>
+    <div id="clueLog5" class="clue-log"></div>
+  </div>
+
+  <div id="stage6" class="stage stage-hidden">
+    <h2>ด่านที่ 6</h2>
+    <p>หมดมุขแล้ว <code>U3RhcnQgd2l0aCBFPTIuNSBjYWxjdWxhdGUgdGhlIGZyZXF1ZW5jeSBvZiBhbiBhc3N1bXB0aW9uIHdpdGggbT0xIGFuZCBsPTAgLiBUaGVuIGNvbnZlcnQgdGhlIGFuc3dlciB0byBhc2NpaSwgdGhlbiBiYXNlNjQgdGhlcmUu</code></p>
+    <input type="text" id="answer6" placeholder="ใส่คำตอบของคุณ..."/>
+    <button onclick="checkAnswer(6)">ตรวจสอบ</button>
+    <button id="hint6" onclick="showHint(6)">ขอคำใบ้(ขึ้นอยู่กับโหมด ง่าย/ยาก )</button>
+    <div id="result6" class="result"></div>
+    <button id="nextStageButton6" onclick="goToNextStage(6)" style="display: none;">จัดเรียงจิ๊กซอว์</button>
+    <div id="clueLog6" class="clue-log"></div>
+  </div>
+
+  <div id="puzzleSection">
+    <div id="puzzleContainer"></div>
+    <button id="checkFinalButton" onclick="checkFinalAnswer()" style="display: none;">สืบหาความจริง</button>
+    <div id="finalResult"></div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const answers = {
+      1: "kod ja ez",
+      2: "deknoi",
+      3: "tumdaingai",
+      4: "lionking",
+      5: "game clear",
+      6: "goodskill"
+    };
+
+    const clues = {
+      1: { easy: "ตัดตัวอักษร", hard: "เลือกเฉพาะตัวอักษรที่มี '1' นำหน้า แล้วหาคำที่เกี่ยวกับความง่ายในภาษาไทย" },
+      2: { easy: "แบ่งบิตเป็นกลุ่ม แล้วหาคำเกี่ยวกับเด็ก", hard: "แบ่งบิตเป็นกลุ่ม 11 บิต และคิดถึงคำในภาษาไทยที่เกี่ยวกับเด็ก" },
+      3: { easy: "ถอดรหัส affine cipher ด้วย a⁻¹", hard: "ใช้การถอดรหัส affine cipher โดยหาค่า a⁻¹ และแปลงตัวอักษรกลับ" },
+      4: { easy: "คิดถึงการพิมพ์ในโทรศัพท์เก่า", hard: "ลองคิดถึงการพิมพ์ข้อความในโทรศัพท์ยุค 90s และภาพยนตร์ดัง" },
+      5: { easy: "หาร a ด้วย m เพื่อหาตัวอักษร", hard: "แปลงค่า a โดยหารด้วย m หรือใช้ mod 26 เพื่อหาตัวอักษรที่เกี่ยวกับเกม" },
+      6: { easy: "ถอดรหัส base64 ก่อน", hard: "ถอดรหัส base64 ก่อน แล้วคิดถึงคำที่เกี่ยวกับความสามารถ" }
+    };
+
+    const puzzlePieces = {
+      1: "T",
+      2: "RU",
+      3: "TH",
+      4: "IS",
+      5: "FO",
+      6: "UND"
+    };
+
+    const seniorClues = {
+      1: "กันดัม",
+      2: "ไม่ใส่แว่น",
+      3: "nike",
+      4: "ฟิสิกส์",
+      5: "7",
+      6: "egg"
+    };
+
+    let clueUsed = {
+      1: false,
+      2: false,
+      3: false,
+      4: false,
+      5: false,
+      6: false
+    };
+
+    let collectedPieces = JSON.parse(localStorage.getItem('puzzlePieces')) || [];
+    let collectedSeniorClues = JSON.parse(localStorage.getItem('seniorClues')) || [];
+    let score = parseInt(localStorage.getItem('score')) || 0;
+    let attempts = JSON.parse(localStorage.getItem('attempts')) || {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+      6: 0
+    };
+    let difficulty = localStorage.getItem('difficulty') || 'easy';
+    let sortableInstance = null;
+
+    const successSound = document.getElementById('successSound');
+    const errorSound = document.getElementById('errorSound');
+    const spookySound = document.getElementById('spookySound');
+
+    function checkAnswer(stage) {
+      const input = document.getElementById(`answer${stage}`).value.trim().toLowerCase();
+      const result = document.getElementById(`result${stage}`);
+      const clueLog = document.getElementById(`clueLog${stage}`);
+      const nextButton = document.getElementById(`nextStageButton${stage}`);
+      attempts[stage]++;
+      localStorage.setItem('attempts', JSON.stringify(attempts));
+      updateScoreDisplay();
+      if (input === answers[stage]) {
+        result.innerText = '🟢 คำตอบถูกต้อง!';
+        clueLog.innerText = `✔️ ด่านที่ ${stage} ผ่านแล้ว`;
+        nextButton.style.display = 'inline-block';
+        if (stage === 6) {
+          nextButton.innerText = 'จัดเรียงจิ๊กซอว์';
+          result.innerText += ' ไปจัดเรียงจิ๊กซอว์ที่ #puzzleContainer!';
+        }
+        if (!collectedPieces.includes(puzzlePieces[stage])) {
+          collectedPieces.push(puzzlePieces[stage]);
+          localStorage.setItem('puzzlePieces', JSON.stringify(collectedPieces));
+          showToast(`ชิ้นส่วนจิ๊กซอว์: ${puzzlePieces[stage]}`);
+          if (!collectedSeniorClues.includes(seniorClues[stage])) {
+            collectedSeniorClues.push(seniorClues[stage]);
+            localStorage.setItem('seniorClues', JSON.stringify(collectedSeniorClues));
+            showToast(`คำใบ้จากพี่รหัส: ${seniorClues[stage]}`);
+          }
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+          successSound.play();
+          const scoreMultiplier = difficulty === 'easy' ? 0.8 : 1.2;
+          score += Math.max(100 - (attempts[stage] - 1) * 10, 10) * scoreMultiplier;
+          localStorage.setItem('score', score);
+          updateScoreDisplay();
+        }
+        updatePuzzlePieces();
+        updateSeniorClues();
+      } else {
+        result.innerText = '❌ คำตอบไม่ถูก ลองใหม่!';
+        nextButton.style.display = 'none';
+        errorSound.play();
+      }
+    }
+
+    function showHint(stage) {
+      const clueLog = document.getElementById(`clueLog${stage}`);
+      const hintButton = document.getElementById(`hint${stage}`);
+      if (!clueUsed[stage]) {
+        clueLog.innerText = `💡 คำใบ้: ${clues[stage][difficulty]}`;
+        clueUsed[stage] = true;
+        hintButton.disabled = true;
+        const hintPenalty = difficulty === 'easy' ? 10 : 20;
+        score = Math.max(score - hintPenalty, 0);
+        localStorage.setItem('score', score);
+        updateScoreDisplay();
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.innerText = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        setTimeout(() => {
+          toast.classList.remove('hide');
+          toast.innerText = '';
+        }, 500);
+      }, 3000);
+    }
+
+    function updatePuzzlePieces() {
+      const piecesList = document.getElementById('piecesList');
+      const puzzleContainer = document.getElementById('puzzleContainer');
+      const checkFinalButton = document.getElementById('checkFinalButton');
+      piecesList.innerText = collectedPieces.join(', ') || 'ยังไม่มีชิ้นส่วน';
+      puzzleContainer.innerHTML = '';
+      collectedPieces.forEach(piece => {
+        const div = document.createElement('div');
+        div.className = 'puzzle-piece';
+        div.textContent = piece;
+        div.setAttribute('data-piece', piece);
+        puzzleContainer.appendChild(div);
+      });
+      if (sortableInstance) {
+        sortableInstance.destroy();
+      }
+      if (collectedPieces.length > 0) {
+        sortableInstance = new Sortable(puzzleContainer, {
+          animation: 150
+        });
+        checkFinalButton.style.display = 'inline-block';
+      } else {
+        checkFinalButton.style.display = 'none';
+      }
+    }
+
+    function updateSeniorClues() {
+      const seniorClueGrid = document.getElementById('seniorClueGrid');
+      if (!seniorClueGrid) return;
+      for (let i = 1; i <= 6; i++) {
+        const clueBox = document.getElementById(`seniorClue${i}`);
+        clueBox.innerText = collectedSeniorClues.includes(seniorClues[i]) ? seniorClues[i] : '????????';
+      }
+    }
+
+    function checkFinalAnswer() {
+      const puzzleContainer = document.getElementById('puzzleContainer');
+      const pieces = Array.from(puzzleContainer.getElementsByClassName('puzzle-piece')).map(div => div.getAttribute('data-piece'));
+      const finalResult = document.getElementById('finalResult');
+      const correctOrder = ['T', 'RU', 'TH', 'IS', 'FO', 'UND'];
+      console.log('Current pieces:', pieces);
+      console.log('Correct order:', correctOrder);
+      let isCorrect = pieces.length === correctOrder.length;
+      for (let i = 0; i < pieces.length; i++) {
+        if (pieces[i] !== correctOrder[i]) {
+          isCorrect = false;
+          break;
+        }
+      }
+      if (isCorrect) {
+        finalResult.innerText = '🎉 ความจริงถูกค้นพบ: ไม่มีอะไรเลยใส่มาให้ลุ้น';
+        confetti({
+          particleCount: 200,
+          spread: 100,
+          origin: { y: 0.6 }
+        });
+        successSound.play();
+        const scoreMultiplier = difficulty === 'easy' ? 0.8 : 1.2;
+        score += 200 * scoreMultiplier;
+        localStorage.setItem('score', score);
+        updateScoreDisplay();
+      } else {
+        finalResult.innerText = '❌ ยังไม่ถูก ลองจัดเรียงใหม่!';
+        errorSound.play();
+      }
+    }
+
+    function updateScoreDisplay() {
+      const scoreValue = document.getElementById('scoreValue');
+      const attemptsValue = document.getElementById('attemptsValue');
+      const totalAttempts = Object.values(attempts).reduce((sum, val) => sum + val, 0);
+      scoreValue.innerText = Math.round(score);
+      attemptsValue.innerText = totalAttempts;
+    }
+
+    function setDifficulty(mode) {
+      difficulty = mode;
+      localStorage.setItem('difficulty', mode);
+      showToast(`โหมด: ${mode === 'easy' ? 'ง่าย' : 'ยาก'}`);
+      updateScoreDisplay();
+    }
+
+    function goToNextStage(stage) {
+      if (stage < 6) {
+        goToStage(stage + 1);
+      } else {
+        showToast('ผ่านทุกด่านแล้ว! ไปจัดเรียงจิ๊กซอว์ที่ #puzzleContainer');
+        document.getElementById('puzzleSection').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function resetGame() {
+      if (confirm('แน่ใจหรือว่าจะเริ่มใหม่ทั้งหมด? ความคืบหน้าทั้งหมดจะถูกลบ!')) {
+        // Clear localStorage
+        localStorage.removeItem('puzzlePieces');
+        localStorage.removeItem('score');
+        localStorage.removeItem('attempts');
+        localStorage.removeItem('difficulty');
+        localStorage.removeItem('seniorClues');
+
+        // Reset game state
+        collectedPieces = [];
+        collectedSeniorClues = [];
+        score = 0;
+        attempts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+        clueUsed = { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false };
+        difficulty = 'easy';
+
+        // Reset UI
+        for (let i = 1; i <= 6; i++) {
+          document.getElementById(`result${i}`).innerText = '';
+          document.getElementById(`clueLog${i}`).innerText = '';
+          document.getElementById(`hint${i}`).disabled = false;
+          document.getElementById(`answer${i}`).value = '';
+          document.getElementById(`nextStageButton${i}`).style.display = 'none';
+        }
+        document.getElementById('finalResult').innerText = '';
+        document.getElementById('puzzleContainer').innerHTML = '';
+        document.getElementById('checkFinalButton').style.display = 'none';
+        if (sortableInstance) {
+          sortableInstance.destroy();
+          sortableInstance = null;
+        }
+        // Remove senior clues page if exists
+        const seniorCluesPage = document.getElementById('seniorCluesPage');
+        if (seniorCluesPage) {
+          seniorCluesPage.remove();
+        }
+        updatePuzzlePieces();
+        updateSeniorClues();
+        updateScoreDisplay();
+        showToast('🎮 เกมถูกรีเซ็ตเรียบร้อยแล้ว!');
+        goToStage(1);
+      }
+    }
+
+    function toggleMenu() {
+      document.getElementById('sideMenu').classList.toggle('show');
+    }
+
+    function goToStage(stage) {
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById(`stage${i}`).classList.add('stage-hidden');
+        document.getElementById(`result${i}`).innerText = '';
+        document.getElementById(`nextStageButton${i}`).style.display = 'none';
+      }
+      // Remove senior clues page if exists
+      const seniorCluesPage = document.getElementById('seniorCluesPage');
+      if (seniorCluesPage) {
+        seniorCluesPage.remove();
+      }
+      document.getElementById('scoreDisplay').classList.remove('page-hidden');
+      document.getElementById('puzzlePieces').classList.remove('page-hidden');
+      document.getElementById('puzzleSection').classList.remove('page-hidden');
+      document.getElementById(`stage${stage}`).classList.remove('stage-hidden');
+      spookySound.pause();
+      toggleMenu();
+    }
+
+    function showSeniorCluesPage() {
+      // Remove existing senior clues page if any
+      const existingPage = document.getElementById('seniorCluesPage');
+      if (existingPage) {
+        existingPage.remove();
+      }
+
+      // Create new senior clues page
+      const seniorCluesPage = document.createElement('div');
+      seniorCluesPage.id = 'seniorCluesPage';
+      seniorCluesPage.innerHTML = `
+        <h2>คำใบ้จากพี่รหัส</h2>
+        <p>คำใบ้จะได้ก็ต่อเมื่อเราผ่านด่านการถอดรหัสจาก 1 ใน 6 ด่าน</p>
+        <div id="seniorClueGrid" class="senior-clue-grid">
+          <div class="senior-clue-box" id="seniorClue1">????????</div>
+          <div class="senior-clue-box" id="seniorClue2">????????</div>
+          <div class="senior-clue-box" id="seniorClue3">????????</div>
+          <div class="senior-clue-box" id="seniorClue4">????????</div>
+          <div class="senior-clue-box" id="seniorClue5">????????</div>
+          <div class="senior-clue-box" id="seniorClue6">????????</div>
+        </div>
+      `;
+      document.body.appendChild(seniorCluesPage);
+
+      // Hide main game elements
+      for (let i = 1; i <= 6; i++) {
+        document.getElementById(`stage${i}`).classList.add('stage-hidden');
+      }
+      document.getElementById('scoreDisplay').classList.add('page-hidden');
+      document.getElementById('puzzlePieces').classList.add('page-hidden');
+      document.getElementById('puzzleSection').classList.add('page-hidden');
+
+      // Update clues and play sound
+      updateSeniorClues();
+      spookySound.play();
+      toggleMenu();
+    }
+
+    // Initialize on load
+    updatePuzzlePieces();
+    updateSeniorClues();
+    updateScoreDisplay();
+  </script>
+</body>
+</html>
