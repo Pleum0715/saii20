@@ -399,7 +399,7 @@
 
   <div id="stage1" class="stage">
     <h2>ด่านที่ 1</h2>
-    <p>เมื่อเราตัดสิ่งที่แย่ในชีวิตออกไปมักจะเจอสิ่งที่ใช่สำหรับเรา: <code>0X1Q1A0Z1B1X0C1D1E0F1G0H0I0J1K0L0M0N0O1P1Q0R0S1T0U0V1W0X0Y0Z1010G1H1I0J0K0L0M001X0Z0W0A0D1G1Q0Z1T0O1U1P0Z</code></p>
+    <p>เมื่อเราตัดสิ่งที่แย่ในชีวิตออกไปมักจะเจอสิ่งที่ใช่สำหรับเรา: <code> 1101011S1D1F0G1H1J1K1L1E1G0H0J1M0G0F1S0A0V0X0E0G1K1H0Y1T0F1V0N1K1O0D0J0A0N1G1A0I0N0K0L0I1Q1W0E1R1T1G0H1Y1J0M0B1F1D1A1K1L0O0J0K0U1H1T1F0S1V0B0F1S</code></p>
     <input type="text" id="answer1" placeholder="ใส่คำตอบของคุณ..."/>
     <button onclick="checkAnswer(1)">ตรวจสอบ</button>
     <button id="hint1" onclick="showHint(1)">ขอคำใบ้(ขึ้นอยู่กับโหมด ง่าย/ยาก )</button>
@@ -421,7 +421,7 @@
 
   <div id="stage3" class="stage stage-hidden">
     <h2>ด่านที่ 3</h2>
-    <p>(a × x + b) mod 26 , a = 5, b = 8 , A = 0, B = 1, ..., Z = 25 <code>ZGQXIWVMIW</code></p>
+    <p>(a × x + b) mod 26 , a = 5, b = 8 , A = 0, B = 1, ..., Z = 25 <code>ZEQXIWVMIW</code></p>
     <input type="text" id="answer3" placeholder="ใส่คำตอบของคุณ..."/>
     <button onclick="checkAnswer(3)">ตรวจสอบ</button>
     <button id="hint3" onclick="showHint(3)">ขอคำใบ้(ขึ้นอยู่กับโหมด ง่าย/ยาก )</button>
@@ -443,7 +443,7 @@
 
   <div id="stage5" class="stage stage-hidden">
     <h2>ด่านที่ 5</h2>
-    <p>โอ้แอปเปิ้ล: <code>[1] m = 10, a = 10.3 [2] m = 3, a = 32.33 [3] m = 5, a = 21.8 [4] m = 4, a = 25 [5] m = 2, a = 49.5 [6] m = 2, a = 53 [7] m = 1, a = 101 [8] m = 2, a = 50.5 [9] m = 2, a = 58.5</code></p>
+    <p>โอ้แอปเปิ้ล: <code>[1] m = 10, a = 10.3 [2] m = 3, a = 32.33 [3] m = 5, a = 21.8 [4] m = 6, a = 16.83 [5] m = 2, a = 49.5 [6] m = 7, a = 15.42 [7] m = 1, a = 101 [8] m = 5, a = 19.4 [9] m = 9, a = 12.66</code></p>
     <input type="text" id="answer5" placeholder="ใส่คำตอบของคุณ..."/>
     <button onclick="checkAnswer(5)">ตรวจสอบ</button>
     <button id="hint5" onclick="showHint(5)">ขอคำใบ้(ขึ้นอยู่กับโหมด ง่าย/ยาก )</button>
@@ -483,11 +483,11 @@
 
     const clues = {
       1: { easy: "ตัดตัวอักษร", hard: "เลือกเฉพาะตัวอักษรที่มี '1' นำหน้า แล้วหาคำที่เกี่ยวกับความง่ายในภาษาไทย" },
-      2: { easy: "แบ่งบิตเป็นกลุ่ม แล้วหาคำเกี่ยวกับเด็ก", hard: "แบ่งบิตเป็นกลุ่ม 11 บิต และคิดถึงคำในภาษาไทยที่เกี่ยวกับเด็ก" },
+      2: { easy: "เริ่มดี่ที่4ดีแต่แย่ที่3ตอนจบ", hard: "7บิตแต่ใช้ได้แค่ 4 บิตแรก" },
       3: { easy: "ถอดรหัส affine cipher ด้วย a⁻¹", hard: "ใช้การถอดรหัส affine cipher โดยหาค่า a⁻¹ และแปลงตัวอักษรกลับ" },
-      4: { easy: "คิดถึงการพิมพ์ในโทรศัพท์เก่า", hard: "ลองคิดถึงการพิมพ์ข้อความในโทรศัพท์ยุค 90s และภาพยนตร์ดัง" },
-      5: { easy: "หาร a ด้วย m เพื่อหาตัวอักษร", hard: "แปลงค่า a โดยหารด้วย m หรือใช้ mod 26 เพื่อหาตัวอักษรที่เกี่ยวกับเกม" },
-      6: { easy: "ถอดรหัส base64 ก่อน", hard: "ถอดรหัส base64 ก่อน แล้วคิดถึงคำที่เกี่ยวกับความสามารถ" }
+      4: { easy: "ปุ่มกด", hard: "ปุ่มกดและสิ่งที่อยู่บนปุ่มกด" },
+      5: { easy: "ฟิสิกส์", hard: "นิวตัน" },
+      6: { easy: "ถอดรหัส base64 ก่อน", hard: "ถอดรหัส base64 ก่อนและตามด้วยกลศาสตร์ควอนตัม" }
     };
 
     const puzzlePieces = {
